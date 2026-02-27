@@ -76,7 +76,7 @@ class AppManager:
 
 
 # =========================
-# Services (daemons)
+# Existing Services
 # =========================
 class CastToScreen(Service):
     def init(self):
@@ -86,32 +86,42 @@ class CastToScreen(Service):
         pass
 
 
-class SkipReclam(Service):
+# =========================
+# IPTV Service
+# =========================
+class IPTVService(Service):
+    def __init__(self, event_bus):
+        self.event_bus = event_bus
+        self.running = False
+        self.channels = []
+        self.current = None
+
     def init(self):
-        print("[Service] SkipReclam started")
+        print("[Service] IPTVService started")
+        self.running = True
+
+    def load_playlist(self, url):
+        print(f"[IPTV] Loading playlist: {url}")
+        # Заглушка плейлиста
+        self.channels = [
+            {"name": "Channel 1", "url": "http://stream1"},
+            {"name": "Channel 2", "url": "http://stream2"}
+        ]
+        self.event_bus.emit("iptv_playlist_loaded", self.channels)
+
+    def play(self, index):
+        if index < len(self.channels):
+            self.current = self.channels[index]
+            print(f"[IPTV] Playing {self.current['name']}")
+            self.event_bus.emit("iptv_play", self.current)
 
     def loop(self):
-        pass
-
-
-class MusicPlayback(Service):
-    def init(self):
-        print("[Service] MusicPlayback started")
-
-    def loop(self):
-        pass
-
-
-class LinkWireless(Service):
-    def init(self):
-        print("[Service] LinkWireless started")
-
-    def loop(self):
-        pass
+        if self.running:
+            pass  # здесь можно добавить буферизацию/декодирование
 
 
 # =========================
-# Apps (cards)
+# Existing Apps
 # =========================
 class HelloTV(App):
     def launch(self):
@@ -142,29 +152,58 @@ class Olistore(App):
 
 
 # =========================
+# IPTV App (card)
+# =========================
+class IPTVApp(App):
+    def __init__(self, event_bus, iptv_service):
+        self.event_bus = event_bus
+        self.service = iptv_service
+
+    def launch(self):
+        print("[App] IPTV launch")
+        self.service.load_playlist("community_default.m3u")
+        # Автозапуск первого канала
+        self.service.play(0)
+
+    def resume(self):
+        print("[App] IPTV resume")
+
+    def pause(self):
+        print("[App] IPTV pause")
+
+    def loop(self):
+        pass
+
+
+# =========================
 # MAIN KERNEL LOOP
 # =========================
 def main():
     print("Orsay MIX Core starting...")
 
     event_bus = EventBus()
-
     services = ServiceManager()
     apps = AppManager()
 
-    # Register services (Tizen-style)
-    services.register(CastToScreen())
-    services.register(SkipReclam())
-    services.register(MusicPlayback())
-    services.register(LinkWireless())
+    # === Register Services ===
+    cast_service = CastToScreen()
+    iptv_service = IPTVService(event_bus)
+
+    services.register(cast_service)
+    services.register(iptv_service)
 
     services.init_all()
 
-    # Launch apps (webOS-style cards)
-    apps.open(HelloTV())
-    apps.open(Olistore())
+    # === Launch Apps ===
+    hello_app = HelloTV()
+    store_app = Olistore()
+    iptv_app = IPTVApp(event_bus, iptv_service)
 
-    # Kernel loop
+    apps.open(hello_app)
+    apps.open(store_app)
+    apps.open(iptv_app)
+
+    # === Kernel Loop ===
     while True:
         services.loop_all()
         apps.loop()
@@ -173,4 +212,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
