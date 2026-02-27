@@ -72,7 +72,6 @@ Do not install on TVs without testing
 
 All add-ons are available via OliStore
 
-AI (ChatGPT) is not included
 
 🔗 Links
 
