@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Orsay TV | Next-Gen Open Source Installer</title>
+    <style>
+        /* БАЗОВІ СТИЛІ (DARK) */
+        body {
+            background: #0d1117; /* Глибокий чорний */
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            margin: 0; padding: 0; color: #c9d1d9;
+            display: flex; flex-direction: column; min-height: 100vh;
+        }
+
+        /* ШАПКА ТА НАВІГАЦІЯ */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 30px; background: #161b22; border-bottom: 1px solid #30363d;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .logo-text {
+            font-size: 2em; font-weight: 800;
+            background: linear-gradient(45deg, #58a6ff, #00f2fe);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin: 0; letter-spacing: 1px;
+        }
+
+        .tabs-nav { display: flex; gap: 8px; }
+        .tab-btn {
+            background: #21262d; border: 1px solid #30363d; padding: 10px 20px;
+            font-size: 14px; font-weight: bold; color: #8b949e; cursor: pointer; border-radius: 6px;
+            transition: 0.3s;
+        }
+        .tab-btn:hover { background: #30363d; color: #c9d1d9; }
+        .tab-btn.active {
+            background: #1f6feb; color: white; border-color: #58a6ff;
+            box-shadow: 0 0 15px rgba(0,122,255,0.4);
+        }
+
+        /* ГОЛОВНИЙ КОНТЕНТ */
+        .content-wrap {
+            max-width: 700px; margin: 50px auto; background: #161b22;
+            padding: 50px; border-radius: 20px; border: 1px solid #30363d;
+            text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            flex-grow: 1; /* Рівномірне заповнення */
+        }
+
+        /* ДИНАМІЧНИЙ БЕЙДЖ ПРИСТРОЮ */
+        #device-tag {
+            background: #000; color: #58a6ff; padding: 6px 14px;
+            border-radius: 6px; font-family: 'Courier New', monospace; font-size: 13px;
+            border: 1px solid #00f2fe; margin-bottom: 30px; display: inline-block;
+            box-shadow: 0 0 10px rgba(0,242,254,0.1);
+        }
+
+        /* КОМПАКТНА СКЕВ ОМОРФНА КНОПКА */
+        .glass-button {
+            display: inline-block;
+            padding: 16px 45px; /* Компактний розмір */
+            font-size: 20px; font-weight: bold; color: #fff;
+            border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer; transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-shadow: 0 -1px 2px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.1);
+        }
+        .blue { background: linear-gradient(to bottom, #1f6feb 0%, #114b9a 100%); }
+        .green { background: linear-gradient(to bottom, #238636 0%, #1a6328 100%); }
+        .locked { background: #30363d !important; color: #8b949e !important; cursor: not-allowed; opacity: 0.6; }
+
+        .glass-button:active:not(.locked) {
+            transform: scale(0.97);
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        /* ПОПЕРЕДЖЕННЯ ДЛЯ ПК (ХАКЕРСЬКИЙ СТИЛЬ) */
+        #pc-warning {
+            display: none;
+            background: rgba(248, 81, 73, 0.05);
+            border: 1px solid #f85149;
+            padding: 30px; border-radius: 15px;
+            box-shadow: 0 0 20px rgba(248,81,73,0.1);
+        }
+        .shield-icon { font-size: 50px; color: #f85149; margin-bottom: 15px; }
+
+        /* БЛОК ЛІЦЕНЗІЇ */
+        #licenseBox {
+            text-align: left; background: #0d1117; padding: 20px;
+            border-radius: 12px; margin-top: 25px; border: 1px solid #30363d;
+            font-size: 13px; line-height: 1.6; color: #8b949e;
+        }
+
+        /* РОСТ-КАРТКИ */
+        .roast-card {
+            text-align: left; border-left: 6px solid #f85149;
+            background: #1c1c1c; padding: 20px; margin-bottom: 25px;
+            border-radius: 12px; color: #f0f6fc;
+        }
+
+        /* ФУТЕР (НИЖНЯ ЧАСТИНА) */
+        footer {
+            padding: 30px; background: #161b22; border-top: 1px solid #30363d;
+            text-align: center; font-size: 13px; color: #8b949e; margin-top: auto;
+        }
+
+        /* ТЕКСТОВИЙ БЕЙДЖ GPL */
+        .gpl-badge {
+            display: inline-block;
+            font-family: 'Courier New', monospace; font-size: 12px;
+            border: 1px solid #30363d; border-radius: 4px;
+            overflow: hidden; background: #0d1117;
+            margin-top: 15px; text-decoration: none;
+            transition: 0.3s;
+        }
+        .gpl-badge:hover { border-color: #58a6ff; box-shadow: 0 0 10px rgba(88,166,255,0.2); }
+        .gpl-badge span { padding: 5px 10px; display: inline-block; }
+        .gpl-badge-title { background: #30363d; color: #c9d1d9; font-weight: bold; }
+        .gpl-badge-version { color: #f85149; font-weight: bold; }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 class="logo-text">Orsay TV</h1>
+    <div class="tabs-nav">
+        <button id="btn-install" onclick="openTab('install')" class="tab-btn active">INSTALL</button>
+        <button id="btn-roast" onclick="openTab('roast')" class="tab-btn">TRUTH</button>
+    </div>
+</header>
+
+<div class="content-wrap">
+    
+    <div id="install">
+        <div id="device-tag">SYSTEM SCANNING...</div>
+        <br>
+        
+        <div id="pc-warning">
+            <div class="shield-icon">⚠️</div>
+            <h3 style="color: #f85149; margin: 0; letter-spacing: 1px;">SYSTEM MISMATCH</h3>
+            <p style="font-size: 14px; color: #c9d1d9; margin-top: 10px;">
+                Computer detected. <b>Orsay TV</b> cannot be injected into a desktop OS.<br>
+                Please use your Smart TV's native browser.
+            </p>
+        </div>
+
+        <div id="tv-installer" style="display:none;">
+            <button id="actionBtn" class="glass-button blue" onclick="handleStep()">1. START SETUP</button>
+            <div id="licenseBox" style="display:none;">
+                <strong style="color:#58a6ff;">Orsay TV License (GPL v3)</strong>
+                <p>
+                    By continuing, you agree to modify your TV internal storage.<br>
+                    This is an open-source tool. The author (ARTE33345555) provides 
+                    no warranties. Use at your own risk.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="roast" style="display:none; text-align: left;">
+        <h2 style="color: #f85149; text-align: center;">Legacy Methods Hall of Shame</h2>
+        
+        <div class="roast-card">
+            <h3>🔴 SamyGO (Samsung)</h3>
+            <p>Hours of terminal typing, dead USB-sticks, and a high chance of bricking your TV just to change one icon. Welcome back to 2011.</p>
+        </div>
+
+        <div class="roast-card" style="border-left-color: #d29922; background: #211d12;">
+            <h3>🟠 OpenLGTV (LG)</h3>
+            <p>Complicated like higher mathematics. All "easy install" links led to dead 2014 blogs. If you like wasting weekends on Telnet errors, this one is for you.</p>
+        </div>
+
+        <div style="background: #238636; color: white; padding: 25px; border-radius: 15px; margin-top: 30px; box-shadow: 0 10px 20px rgba(35,134,54,0.3);">
+            <h3>🟢 Orsay TV (The 2026 Way)</h3>
+            <p>One click. Browser-only. Zero configuration. While competitors are digging through dusty forums, you're already running custom apps.</p>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <div>Developed by ARTE33345555 | Open Source Project</div>
+    
+    <a href="https://www.gnu.org/licenses/gpl-3.0" target="_blank" class="gpl-badge">
+        <span class="gpl-badge-title">LICENSE</span>
+        <span class="gpl-badge-version">GPL v3.0</span>
+    </a>
+</footer>
+
+<script>
+    var step = 1;
+
+    // Перемикання вкладок
+    function openTab(t) {
+        document.getElementById('install').style.display = (t=='install')?'block':'none';
+        document.getElementById('roast').style.display = (t=='roast')?'block':'none';
+        document.getElementById('btn-install').classList.toggle('active', t=='install');
+        document.getElementById('btn-roast').classList.toggle('active', t=='roast');
+    }
+
+    // Логіка визначення пристрою
+    window.onload = function() {
+        var ua = navigator.userAgent;
+        var tag = document.getElementById('device-tag');
+        
+        // Перевірка: чи це ТБ?
+        var isTV = /samsung|smart-tv|lg|netcast|webos/i.test(ua);
+        
+        // Визначення моделі
+        var model = "DESKTOP COMPUTER";
+        if (ua.indexOf("Samsung") > -1) model = "SAMSUNG SMART TV";
+        if (ua.indexOf("LG") > -1) model = "LG SMART TV";
+        
+        tag.innerText = "DEVICE IDENTIFIED: " + model;
+
+        if (isTV) {
+            document.getElementById('tv-installer').style.display = 'block';
+        } else {
+            document.getElementById('pc-warning').style.display = 'block';
+        }
+    };
+
+    // Логіка встановлення
+    function handleStep() {
+        var btn = document.getElementById('actionBtn');
+        var lic = document.getElementById('licenseBox');
+
+        if (step === 1) {
+            lic.style.display = 'block';
+            btn.innerText = "2. CONFIRM & INSTALL";
+            btn.className = "glass-button green";
+            step = 2;
+        } else {
+            btn.disabled = true;
+            btn.innerText = "INJECTING...";
+            
+            setTimeout(function() {
+                document.getElementById('statusMsg').innerHTML = "<h2 style='color:#3fb950;'>SUCCESS! Orsay TV is now active.</h2>";
+                btn.innerText = "FINISHED";
+            }, 3000);
+        }
+    }
+</script>
+
+</body>
+</html>
