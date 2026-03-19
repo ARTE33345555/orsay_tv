@@ -1,5 +1,6 @@
 # orsay_tv
 
+<img width="901" height="452" alt="image" src="https://github.com/user-attachments/assets/0f8b1d09-da7b-4b67-90aa-164da8517ca8" />
 
 Orsay TV Core — custom firmware for old Samsung Orsay, LG NetCast, WebOS 1.0, and Tizen 1.0 TVs.
 It transforms your old TV into a smart multimedia device with 2D/3D menus, games, casting, and an app store.
