@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Orsay TV | Next-Gen Open Source Installer</title>
+    <title>Orsay TV | LG-Killer Edition v2.6</title>
     <style>
-        /* БАЗОВІ СТИЛІ (DARK) */
+        /* CORE DESIGN */
         body {
-            background: #0d1117; 
-            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: #0d1117;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0; padding: 0; color: #c9d1d9;
             display: flex; flex-direction: column; min-height: 100vh;
         }
@@ -15,59 +15,49 @@
         header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 15px 30px; background: #161b22; border-bottom: 1px solid #30363d;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
         .logo-text {
             font-size: 2em; font-weight: 800;
             background: linear-gradient(45deg, #58a6ff, #00f2fe);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin: 0; letter-spacing: 1px;
         }
 
         .tabs-nav { display: flex; gap: 8px; }
         .tab-btn {
-            background: #21262d; border: 1px solid #30363d; padding: 10px 20px;
-            font-size: 14px; font-weight: bold; color: #8b949e; cursor: pointer; border-radius: 6px;
-            transition: 0.3s;
+            background: #21262d; border: 1px solid #30363d; padding: 10px 18px;
+            font-size: 13px; font-weight: bold; color: #8b949e; cursor: pointer; border-radius: 6px;
         }
-        .tab-btn.active {
-            background: #1f6feb; color: white; border-color: #58a6ff;
-            box-shadow: 0 0 15px rgba(0,122,255,0.4);
-        }
+        .tab-btn.active { background: #1f6feb; color: white; border-color: #58a6ff; }
 
         .content-wrap {
-            max-width: 700px; margin: 40px auto; background: #161b22;
-            padding: 40px; border-radius: 20px; border: 1px solid #30363d;
-            text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            max-width: 750px; margin: 40px auto; background: #161b22;
+            padding: 45px; border-radius: 20px; border: 1px solid #30363d;
+            text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
             flex-grow: 1;
         }
 
         #device-tag {
-            background: #000; color: #58a6ff; padding: 6px 14px;
-            border-radius: 6px; font-family: 'Courier New', monospace; font-size: 13px;
-            border: 1px solid #00f2fe; margin-bottom: 20px; display: inline-block;
+            background: #000; color: #58a6ff; padding: 5px 12px;
+            border-radius: 5px; font-family: 'Courier New', monospace; font-size: 12px;
+            border: 1px solid #30363d; margin-bottom: 25px; display: inline-block;
         }
 
         .glass-button {
             display: inline-block;
-            padding: 16px 45px;
-            font-size: 20px; font-weight: bold; color: #fff;
-            border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+            padding: 14px 40px;
+            font-size: 19px; font-weight: bold; color: #fff;
+            border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);
             cursor: pointer; transition: 0.2s;
-            text-shadow: 0 -1px 2px rgba(0,0,0,0.5);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4), inset 0 2px 3px rgba(255,255,255,0.1);
         }
-        .blue { background: linear-gradient(to bottom, #1f6feb 0%, #114b9a 100%); }
-        .green { background: linear-gradient(to bottom, #238636 0%, #1a6328 100%); }
+        .blue { background: linear-gradient(to bottom, #1f6feb, #114b9a); }
+        .green { background: linear-gradient(to bottom, #238636, #1a6328); }
 
-        /* ХАКЕРСЬКИЙ ЛОГ */
         #log-box {
-            display: none;
-            background: #000; padding: 15px; border-radius: 10px; 
-            text-align: left; font-family: 'Courier New', monospace; 
-            font-size: 12px; max-height: 200px; overflow-y: auto; 
-            border: 1px solid #30363d; margin-top: 20px;
+            display: none; background: #000; padding: 15px; border-radius: 10px;
+            text-align: left; font-family: 'Courier New', monospace; font-size: 12px;
+            max-height: 180px; overflow-y: auto; border: 1px solid #333; margin-top: 20px;
         }
 
         #pc-warning {
@@ -76,24 +66,24 @@
         }
 
         .roast-card {
-            text-align: left; border-left: 6px solid #f85149;
-            background: #1c1c1c; padding: 20px; margin-bottom: 25px;
-            border-radius: 12px; color: #f0f6fc;
+            text-align: left; border-left: 5px solid #f85149;
+            background: #1c1c1c; padding: 18px; margin-bottom: 20px; border-radius: 10px;
         }
 
+        /* FOOTER & GPL LOGO */
         footer {
-            padding: 30px; background: #161b22; border-top: 1px solid #30363d;
-            text-align: center; font-size: 13px; color: #8b949e;
+            padding: 35px; background: #0d1117; border-top: 1px solid #30363d;
+            text-align: center; font-size: 12px; color: #8b949e; margin-top: auto;
         }
-
-        .gpl-badge {
-            display: inline-block; font-family: 'Courier New', monospace; 
-            font-size: 12px; border: 1px solid #30363d; border-radius: 4px;
-            overflow: hidden; background: #0d1117; margin-top: 15px; text-decoration: none;
+        
+        .gpl-container {
+            display: inline-flex; align-items: center; border: 1px solid #30363d;
+            border-radius: 6px; overflow: hidden; background: #161b22;
+            text-decoration: none; transition: 0.3s; margin-top: 15px;
         }
-        .gpl-badge-title { background: #30363d; color: #c9d1d9; padding: 5px 10px; font-weight: bold; }
-        .gpl-badge-version { color: #f85149; padding: 5px 10px; font-weight: bold; }
-
+        .gpl-container:hover { opacity: 0.8; border-color: #58a6ff; }
+        .gpl-img-wrap { background: white; padding: 5px 10px; display: flex; align-items: center; }
+        .gpl-text-wrap { padding: 0 12px; color: #f85149; font-family: 'Courier New', monospace; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -101,63 +91,63 @@
 <header>
     <h1 class="logo-text">Orsay TV</h1>
     <div class="tabs-nav">
-        <button id="btn-install" onclick="openTab('install')" class="tab-btn active">INSTALL</button>
-        <button id="btn-roast" onclick="openTab('roast')" class="tab-btn">TRUTH</button>
+        <button id="btn-install" onclick="openTab('install')" class="tab-btn active">INSTALLER</button>
+        <button id="btn-roast" onclick="openTab('roast')" class="tab-btn">THE TRUTH</button>
     </div>
 </header>
 
 <div class="content-wrap">
-    
     <div id="install">
         <div id="device-tag">SYSTEM SCANNING...</div>
-        <br>
         
         <div id="pc-warning">
             <div style="font-size: 40px;">⚠️</div>
-            <h3 style="color: #f85149; margin: 0;">SYSTEM MISMATCH</h3>
-            <p style="font-size: 14px; color: #c9d1d9; margin-top: 10px;">
-                Computer detected. <b>Orsay TV</b> is for TV hardware only.<br>
-                Please use your Smart TV's native browser.
-            </p>
+            <h3 style="color: #f85149; margin: 5px 0;">SYSTEM MISMATCH</h3>
+            <p style="font-size: 13px; color: #8b949e;">Desktop OS detected. Installation restricted.</p>
         </div>
 
         <div id="tv-installer" style="display:none;">
-            <button id="actionBtn" class="glass-button blue" onclick="handleStep()">1. START SETUP</button>
-            
+            <button id="actionBtn" class="glass-button blue" onclick="handleStep()">START INJECTION</button>
             <div id="log-box"></div>
-
-            <div id="licenseBox" style="display:none; text-align: left; background: #0d1117; padding: 20px; border-radius: 12px; margin-top: 25px; border: 1px solid #30363d; font-size: 13px;">
-                <strong style="color:#58a6ff;">Orsay TV Patch Notes (v2.6)</strong>
-                <ul style="color: #8b949e; padding-left: 20px;">
-                    <li><b>WebRTC Support:</b> Real-time video/audio communication.</li>
-                    <li><b>WebKit Refit:</b> ES6+ support for modern sites.</li>
-                    <li><b>SSL Update:</b> Fresh Root CA certificates (2026).</li>
-                    <li><b>OTA Core:</b> Ready for Linux/HTML5 silent updates.</li>
+            <div id="licenseBox" style="display:none; text-align: left; background: #0d1117; padding: 20px; border: 1px solid #333; margin-top: 20px; border-radius: 12px; font-size: 13px;">
+                <b style="color:#58a6ff;">Payload: Orsay TV v2.6 (GPL v3)</b>
+                <ul style="color: #8b949e; padding-left: 18px; margin-top: 8px;">
+                    <li><b>WebRTC Engine:</b> Real-time video/audio support.</li>
+                    <li><b>WebKit-as-WebKit:</b> Modernized legacy rendering.</li>
+                    <li><b>OTA Update:</b> Linux Kernel & HTML5 auto-sync active.</li>
                 </ul>
             </div>
         </div>
     </div>
 
     <div id="roast" style="display:none;">
-        <h2 style="color: #f85149;">Legacy Methods</h2>
+        <h2 style="color: #f85149;">Legacy Hall of Shame</h2>
         <div class="roast-card">
-            <h3>🔴 SamyGO</h3>
-            <p>Broken WebKit, old SSL, no WebRTC. A nightmare from 2011.</p>
+            <h4 style="margin:0; color:#f85149;">🔴 SamyGO (Legacy)</h4>
+            <p style="font-size:12px;">Manual scripts, broken SSL, no WebRTC. A nightmare from 2011.</p>
         </div>
-        <div style="background: #238636; color: white; padding: 25px; border-radius: 15px; margin-top: 30px;">
-            <h3>🟢 Orsay TV (The 2026 Way)</h3>
-            <p>One-click injection. Full WebRTC support. Modern Browser engine. Silent background updates for Linux and WebKit.</p>
+        <div class="roast-card" style="border-left-color: #a50034; background: #211216;">
+            <h4 style="margin:0; color:#ff4d4d;">🔴 LG OpenLGTV & NetCast</h4>
+            <p style="font-size:12px;">Requires hardware disassembly and serial cables. Dead links. No OTA.</p>
+        </div>
+        <div style="background: #238636; color: white; padding: 20px; border-radius: 12px; margin-top: 25px;">
+            <h3 style="margin:0;">🟢 Orsay TV: The 2026 Way</h3>
+            <p style="font-size:14px;">One-click injection. Full WebRTC. Future-proof OTA updates. We revived what they abandoned.</p>
         </div>
     </div>
-
 </div>
 
 <footer>
-    <div>Developed by ARTE33345555 | 2026</div>
-    <a href="https://www.gnu.org/licenses/gpl-3.0" target="_blank" class="gpl-badge">
-        <span class="gpl-badge-title">LICENSE</span>
-        <span class="gpl-badge-version">GPL v3.0</span>
+    <div style="margin-bottom:10px; letter-spacing:1px;">© 2026 DEVELOPED BY ARTE33345555</div>
+    
+    <a href="https://www.gnu.org/licenses/gpl-3.0" target="_blank" class="gpl-container">
+        <div class="gpl-img-wrap">
+            <img src="https://enigma-dev.org/docs/wiki/images/thumb/e/e9/Gplv3-127x51.png/300px-Gplv3-127x51.png" height="22" alt="GPL v3">
+        </div>
+        <div class="gpl-text-wrap">OPEN SOURCE</div>
     </a>
+    
+    <div style="margin-top: 15px; font-size: 11px; color: #484f58;">Licensed under GNU General Public License v3.0</div>
 </footer>
 
 <script>
@@ -174,49 +164,37 @@
         var ua = navigator.userAgent;
         var tag = document.getElementById('device-tag');
         var isTV = /samsung|smart-tv|lg|netcast|webos/i.test(ua);
-        var model = isTV ? (ua.indexOf("Samsung") > -1 ? "SAMSUNG TV" : "LG TV") : "DESKTOP PC";
-        tag.innerText = "DEVICE IDENTIFIED: " + model;
-
+        tag.innerText = "HW_ID: " + (isTV ? (ua.indexOf("Samsung") > -1 ? "SAMSUNG ORSAY" : "LG LEGACY") : "DESKTOP PC");
         if (isTV) { document.getElementById('tv-installer').style.display = 'block'; } 
         else { document.getElementById('pc-warning').style.display = 'block'; }
     };
 
     function handleStep() {
         var btn = document.getElementById('actionBtn');
-        var lic = document.getElementById('licenseBox');
         var log = document.getElementById('log-box');
-
         if (step === 1) {
-            lic.style.display = 'block';
-            btn.innerText = "2. CONFIRM & INJECT";
-            btn.className = "glass-button green";
-            step = 2;
+            document.getElementById('licenseBox').style.display = 'block';
+            btn.innerText = "CONFIRM & INJECT"; btn.className = "glass-button green"; step = 2;
         } else {
-            btn.disabled = true;
-            btn.innerText = "INJECTING...";
-            log.style.display = 'block';
-            
+            btn.disabled = true; btn.innerText = "INJECTING..."; log.style.display = 'block';
             const logs = [
-                "> [INIT] Connecting to ARTE_SERVER...",
-                "> [CHECK] Linux Kernel v3.x detected.",
-                "> [PATCH] Injecting WebRTC libraries...",
-                "> [MOD] Replacing WebKit-as-WebKit binaries...",
-                "> [OTA] Setting up Linux/HTML5 auto-update service...",
-                "> [SSL] Updating Root CA for 2026 protocols...",
-                "> [SUCCESS] Orsay TV Core v2.6 active."
+                "> [SCAN] Identifying Linux Kernel v3.x...",
+                "> [INFO] Rejecting outdated LG-NetCast logic...",
+                "> [INIT] Injecting WebRTC 2026 binaries...",
+                "> [PATCH] Refitting WebKit for HTML5 compatibility...",
+                "> [LINK] Connecting to ARTE_SERVER (OTA Daemon)...",
+                "> [SSL] Renewing Root CA Certificates...",
+                "> [DONE] SYSTEM SECURED."
             ];
-
             let i = 0;
             const interval = setInterval(() => {
                 if (i < logs.length) {
-                    log.innerHTML += `<div style='color:#3fb950; margin-bottom:5px;'>${logs[i]}</div>`;
-                    log.scrollTop = log.scrollHeight;
-                    i++;
+                    log.innerHTML += `<div style='color:#3fb950; margin-bottom:4px;'>${logs[i]}</div>`;
+                    log.scrollTop = log.scrollHeight; i++;
                 } else {
-                    clearInterval(interval);
-                    btn.innerText = "FINISHED";
+                    clearInterval(interval); btn.innerText = "SUCCESS"; alert("Orsay TV Active!");
                 }
-            }, 600);
+            }, 650);
         }
     }
 </script>
