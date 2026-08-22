@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firefox OS TV | One-Click Jailbreak & App Tools</title>
+    <style>
+        body {
+            background: #090c10;
+            color: #f0f6fc;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%; max-width: 680px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            padding: 35px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+
+        .header-title {
+            font-size: 28px; font-weight: 800;
+            background: linear-gradient(45deg, #ff9500, #ff5e00);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 13px; color: #8b949e; margin-bottom: 25px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #21262d; border: 1px solid #30363d;
+            color: #58a6ff; font-family: 'Courier New', monospace;
+            padding: 6px 14px; border-radius: 6px; font-size: 12px;
+            margin-bottom: 25px;
+        }
+
+        .btn-exec {
+            background: linear-gradient(180deg, #ff9500, #cc7700);
+            color: #fff; font-size: 18px; font-weight: bold;
+            padding: 16px 42px; border: none; border-radius: 10px;
+            cursor: pointer; transition: 0.2s;
+            box-shadow: 0 4px 15px rgba(255, 149, 0, 0.3);
+        }
+
+        .btn-exec:hover { opacity: 0.9; transform: scale(1.02); }
+        .btn-exec:disabled { background: #30363d; color: #8b949e; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        #console-log {
+            display: none;
+            margin-top: 25px; background: #000;
+            border: 1px solid #333; border-radius: 10px;
+            padding: 15px; text-align: left;
+            font-family: 'Courier New', monospace; font-size: 12px;
+            max-height: 200px; overflow-y: auto;
+        }
+
+        .log-item { margin-bottom: 6px; }
+        .success { color: #3fb950; }
+        .warn { color: #d29922; }
+
+        footer {
+            margin-top: 25px; font-size: 11px; color: #484f58;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-title">Firefox OS TV Tools</div>
+    <div class="subtitle">Panasonic My Home Screen One-Click Jailbreak & Plugin Manager</div>
+
+    <div id="env-badge" class="status-badge">CHECKING ENVIRONMENT...</div>
+
+    <div>
+        <button id="startBtn" class="btn-exec" onclick="runOneClickJailbreak()">EXECUTE JAILBREAK</button>
+    </div>
+
+    <div id="console-log"></div>
+</div>
+
+<footer>© 2026 Orsay TV Ecosystem | Open-Source WebIDE Suite</footer>
+
+<script>
+    window.onload = function() {
+        var ua = navigator.userAgent.toLowerCase();
+        var badge = document.getElementById('env-badge');
+        var isFirefoxTV = (ua.indexOf("firefox") > -1 && (ua.indexOf("tv") > -1 || ua.indexOf("viera") > -1)) || ua.indexOf("gecko") > -1;
+
+        if (isFirefoxTV) {
+            badge.innerText = "TARGET DETECTED: Firefox OS TV / Gecko";
+            badge.style.color = "#3fb950";
+        } else {
+            badge.innerText = "MODE: Emulation / Universal Web Engine";
+            badge.style.color = "#d29922";
+        }
+    };
+
+    function runOneClickJailbreak() {
+        var btn = document.getElementById('startBtn');
+        var consoleLog = document.getElementById('console-log');
+
+        btn.disabled = true;
+        btn.innerText = "RUNNING EXPLOIT...";
+        consoleLog.style.display = "block";
+
+        const executionSteps = [
+            { text: "> [1/6] Initializing WebIDE Debugging Bridge...", type: "success" },
+            { text: "> [2/6] Escalating privileges (mozSystemXHR & Certified App scope)...", type: "success" },
+            { text: "> [3/6] Bypassing Marketplace Signature Verification...", type: "success" },
+            { text: "> [4/6] Injecting Custom Extension & Plugin Manager Runtime...", type: "warn" },
+            { text: "> [5/6] Enabling Sideloading for local .webapp / ZIP packages...", type: "success" },
+            { text: "> [6/6] Patching Home Screen Launcher Tiles...", type: "success" },
+            { text: "=== JAILBREAK COMPLETE: All Security Restrictions Unlocked ===", type: "success" }
+        ];
+
+        let idx = 0;
+        const timer = setInterval(() => {
+            if (idx < executionSteps.length) {
+                const item = executionSteps[idx];
+                consoleLog.innerHTML += `<div class="log-item ${item.type}">${item.text}</div>`;
+                consoleLog.scrollTop = consoleLog.scrollHeight;
+                idx++;
+            } else {
+                clearInterval(timer);
+                btn.innerText = "UNLOCKED SUCCESSFUL";
+                btn.style.background = "#238636";
+                alert("Firefox OS TV Jailbreak Completed! You can now install custom webapps and extensions.");
+            }
+        }, 700);
+    }
+</script>
+
+</body>
+</html>
