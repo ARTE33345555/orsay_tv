@@ -17,7 +17,7 @@ class EventBus:
 
 
 # =========================
-# Base classes
+# Base Interfaces
 # =========================
 class Service:
     def init(self): pass
@@ -26,10 +26,13 @@ class Service:
 
 
 class App:
-    def launch(self): pass
+    def __init__(self, name="App"):
+        self.name = name
+
+    def launch(self): print(f"[{self.name}] Launching...")
     def loop(self): pass
-    def pause(self): pass
-    def resume(self): pass
+    def pause(self): print(f"[{self.name}] Paused (Background overlay/listening)")
+    def resume(self): print(f"[{self.name}] Resumed (Foreground)")
 
 
 # =========================
@@ -52,18 +55,16 @@ class SystemInstaller:
 
     def run_installation(self):
         print("===================================================")
-        print("        ORSAY MIX CUSTOM FIRMWARE INSTALLER        ")
+        print("         ORSAY MIX CUSTOM FIRMWARE INSTALLER       ")
         print("===================================================")
         print()
 
         total = len(self.components)
         for idx, (label, name) in enumerate(self.components, 1):
             print(f"[{idx}/{total}] {label}...", end="", flush=True)
-            time.sleep(0.3)  # Имитация установки процесса
+            time.sleep(0.1)
 
-            # Имитация успешной установки компонента
             success = True 
-            
             if success:
                 print(" [OK]")
             else:
@@ -82,12 +83,12 @@ class SystemInstaller:
     def rollback(self):
         print("\n[CRITICAL ERROR] Installation aborted!")
         print("[RECOVERY] Restoring previous firmware from Lossless backup...")
-        time.sleep(0.5)
+        time.sleep(0.3)
         print("[RECOVERY] Rollback complete. Rebooting into stable system...")
 
 
 # =========================
-# ServiceManager (Tizen)
+# System Managers
 # =========================
 class ServiceManager:
     def __init__(self):
@@ -105,23 +106,31 @@ class ServiceManager:
             s.loop()
 
 
-# =========================
-# AppManager (webOS cards)
-# =========================
 class AppManager:
     def __init__(self):
         self.stack = []
+        self.registry = {}
 
-    def open(self, app):
+    def register_app(self, key, app_instance):
+        self.registry[key] = app_instance
+
+    def open(self, app_or_key):
+        app = self.registry.get(app_or_key, app_or_key) if isinstance(app_or_key, str) else app_or_key
+        
+        if self.stack and self.stack[-1] == app:
+            return
+
         if self.stack:
             self.stack[-1].pause()
+            
         self.stack.append(app)
         app.launch()
         app.resume()
 
     def close(self):
         if self.stack:
-            self.stack.pop()
+            closing_app = self.stack.pop()
+            closing_app.pause()
         if self.stack:
             self.stack[-1].resume()
 
@@ -137,9 +146,6 @@ class CastToScreen(Service):
     def init(self):
         print("[Service] CastToScreen (DLNA + Wi-Fi Direct) started")
 
-    def loop(self):
-        pass
-
 
 class SambaShareService(Service):
     def __init__(self, event_bus):
@@ -147,9 +153,6 @@ class SambaShareService(Service):
 
     def init(self):
         print("[Service] Samba Client/Server active (Shares & Cross-TV Network)")
-
-    def loop(self):
-        pass
 
 
 class PrivetTVAssistant(Service):
@@ -160,9 +163,11 @@ class PrivetTVAssistant(Service):
         print("[Service] Privet TV Voice Assistant (LLM + Home Assistant) active")
 
     def listen_command(self, command_text):
-        print(f"[Privet TV] Voice Input: '{command_text}'")
+        print(f"\n[Privet TV] Voice Input: '{command_text}'")
         if "telegram" in command_text.lower():
             self.event_bus.emit("voice_open_app", "TelegramTV")
+        elif "iptv" in command_text.lower():
+            self.event_bus.emit("voice_open_app", "IPTV")
 
 
 class IPTVService(Service):
@@ -177,7 +182,7 @@ class IPTVService(Service):
         self.running = True
 
     def load_playlist(self, url):
-        print(f"[IPTV] Loading playlist: {url}")
+        print(f"[IPTV Service] Loading playlist from: {url}")
         self.channels = [
             {"name": "Channel 1", "url": "http://stream1"},
             {"name": "Channel 2", "url": "http://stream2"}
@@ -187,67 +192,53 @@ class IPTVService(Service):
     def play(self, index):
         if index < len(self.channels):
             self.current = self.channels[index]
-            print(f"[IPTV] Playing {self.current['name']}")
+            print(f"[IPTV Service] Playing {self.current['name']}")
             self.event_bus.emit("iptv_play", self.current)
-
-    def loop(self):
-        if self.running:
-            pass
 
 
 # =========================
 # Applications
 # =========================
 class HelloTV(App):
-    def launch(self): print("[App] HelloTV launch")
-    def resume(self): print("[App] HelloTV resume")
-    def pause(self): print("[App] HelloTV pause")
-    def loop(self): pass
+    def __init__(self):
+        super().__init__("HelloTV")
 
 
 class Olistore(App):
-    def launch(self): print("[App] Olli Store launch")
-    def resume(self): print("[App] Olli Store resume")
-    def pause(self): print("[App] Olli Store pause")
-    def loop(self): pass
+    def __init__(self):
+        super().__init__("Olli Store")
 
 
 class IPTVApp(App):
     def __init__(self, event_bus, iptv_service):
+        super().__init__("IPTV")
         self.event_bus = event_bus
         self.service = iptv_service
 
     def launch(self):
-        print("[App] IPTV launch")
+        super().launch()
         self.service.load_playlist("community_default.m3u")
         self.service.play(0)
-
-    def resume(self): print("[App] IPTV resume")
-    def pause(self): print("[App] IPTV pause")
-    def loop(self): pass
 
 
 class TelegramTVApp(App):
     def __init__(self, event_bus):
+        super().__init__("Telegram TV")
         self.event_bus = event_bus
 
     def launch(self):
-        print("[App] Telegram TV launch (TDLib + OpenCV/libcamera)")
+        super().launch()
+        print("[Telegram TV] Launching (TDLib + OpenCV/libcamera)")
         self.event_bus.emit("telegram_ready", True)
 
     def incoming_call(self, caller_name):
         print(f"[Telegram TV] Overlay Push Notification: Incoming Call from {caller_name}")
-
-    def resume(self): print("[App] Telegram TV resume")
-    def pause(self): print("[App] Telegram TV pause (Background overlay listening)")
-    def loop(self): pass
 
 
 # =========================
 # MAIN ENTRY POINT
 # =========================
 def main():
-    # 1. Запуск инсталлятора и проверки бэкапа перед загрузкой ядра
     installer = SystemInstaller()
     if not installer.run_installation():
         sys.exit(1)
@@ -271,28 +262,37 @@ def main():
 
     services.init_all()
 
-    # === Launch Apps ===
+    # === Instantiate and Register Apps ===
     hello_app = HelloTV()
     store_app = Olistore()
     iptv_app = IPTVApp(event_bus, iptv_service)
     telegram_app = TelegramTVApp(event_bus)
 
+    apps.register_app("HelloTV", hello_app)
+    apps.register_app("OlliStore", store_app)
+    apps.register_app("IPTV", iptv_app)
+    apps.register_app("TelegramTV", telegram_app)
+
+    # === Event Listeners ===
+    def handle_voice_app_launch(app_name):
+        print(f"[Kernel] Voice Command Triggered App Launch: {app_name}")
+        apps.open(app_name)
+
+    event_bus.on("voice_open_app", handle_voice_app_launch)
+
+    # === Launch Sequence & Simulation ===
+    print("\n--- Card Stack Initialization ---")
     apps.open(hello_app)
     apps.open(store_app)
     apps.open(iptv_app)
     apps.open(telegram_app)
 
-    # === Event Listeners ===
-    def handle_voice_app_launch(app_name):
-        print(f"[Kernel] Voice Command Triggered App Launch: {app_name}")
-
-    event_bus.on("voice_open_app", handle_voice_app_launch)
-
-    # Симуляция событий
+    # Simulate voice action & push notification
     assistant_service.listen_command("Privet TV, открой Telegram")
     telegram_app.incoming_call("Artem")
 
     # === Kernel Loop (60 FPS) ===
+    print("\n--- Core Kernel Active ---")
     tick = 0
     try:
         while tick < 3:
