@@ -2,8 +2,15 @@ import time
 import sys
 import os
 
+# Пытаемся импортировать внешний компонент ssh.py
+try:
+    import ssh
+    SSH_MODULE_AVAILABLE = True
+except ImportError:
+    SSH_MODULE_AVAILABLE = False
+
 # ==========================================
-# 1. СИСТЕМА ДЕТЕКЦИИ ЭПОХИ ТЕЛЕВИЗОРА И РЕСУРСОВ
+# HOME RADIO PRO - FIRMWARE KERNEL CORE
 # ==========================================
 class DevicePlatform:
     ORSAY_LEGACY = "Orsay (Samsung Legacy)"
@@ -70,20 +77,21 @@ class SystemInstaller:
     def __init__(self):
         self.components = [
             ("Creating compressed system backup (Lossless)", "backup"),
-            ("Updating Root CA Certificates (https / YouTube fix)", "ca-certificates"),
+            ("Updating Root CA Certificates (https / SSL fix)", "ca-certificates"),
             ("Updating Linux Kernel & Base System", "linux"),
             ("Updating WebKit Engine", "webkit"),
             ("Installing Python 3 Environment", "python3"),
             ("Installing WebRTC Components", "webrtc"),
+            ("Configuring SSH Daemon from ssh.py", "ssh_service"),
             ("Configuring WoL & WoWLAN Services", "wol_wowl"),
             ("Deploying Wireless Hub (DLNA + Wi-Fi Direct + Samba)", "network_hub"),
             ("Deploying Miracast / AirPlay / Chromecast Stack", "cast_stack"),
-            ("Launching Privet TV++ & Olli Store Environment", "privet_olli")
+            ("Launching Home Radio Pro & Olli Store Environment", "home_radio_olli")
         ]
 
     def run_installation(self):
         print("===================================================")
-        print("         ORSAY MIX CUSTOM FIRMWARE INSTALLER       ")
+        print("          HOME RADIO PRO FIRMWARE INSTALLER        ")
         print("===================================================")
         print()
 
@@ -95,7 +103,7 @@ class SystemInstaller:
 
         print("\n---------------------------------------------------")
         print("Installation finished successfully!")
-        print("Starting Orsay MIX Core & Privet TV++...")
+        print("Starting Home Radio Pro Core & Engine...")
         print("---------------------------------------------------\n")
         return True
 
@@ -143,20 +151,20 @@ class AppManager:
             self.stack[-1].loop()
 
 # ==========================================
-# 6. PRIVET TV++ SERVICE ENGINE
+# 6. HOME RADIO PRO ASSISTANT ENGINE
 # ==========================================
-class PrivetTVPlusAssistant(Service):
+class HomeRadioAssistant(Service):
     def __init__(self, event_bus, hw_profile):
         self.event_bus = event_bus
         self.hw = hw_profile
 
     def init(self):
-        print(f"[Privet TV++] Initializing Engine for Platform: {self.hw.platform}")
-        print(f"[Privet TV++] Hooking Graphics Assets: {self.hw.assets['assistant_hud']}")
-        print(f"[Privet TV++] Loaded Skin Engine: {self.hw.assets['ui_style']} Mode")
+        print(f"[Home Radio Pro] Initializing Engine for Platform: {self.hw.platform}")
+        print(f"[Home Radio Pro] Hooking Graphics Assets: {self.hw.assets['assistant_hud']}")
+        print(f"[Home Radio Pro] Loaded Skin Engine: {self.hw.assets['ui_style']} Mode")
 
     def listen_command(self, command_text):
-        print(f"\n[Privet TV++] Voice Command Captured: '{command_text}'")
+        print(f"\n[Home Radio Pro] Voice Command Captured: '{command_text}'")
         if "telegram" in command_text.lower():
             self.event_bus.emit("voice_open_app", "TelegramTV")
         elif "iptv" in command_text.lower():
@@ -165,8 +173,22 @@ class PrivetTVPlusAssistant(Service):
             self.event_bus.emit("voice_open_app", "OlliStore")
 
 # =========================
-# 7. System Services
+# 7. System Services (интеграция ssh.py)
 # =========================
+class FallbackSSHService(Service):
+    """Резервный сервис на случай, если файл ssh.py не найден рядом"""
+    def __init__(self, port=2222):
+        self.port = port
+    def init(self):
+        print(f"[Service] WARNING: Using Fallback SSH (ssh.py module missing). Port: {self.port}")
+
+# Автоматически выбираем класс из ssh.py или переходим на заглушку
+if SSH_MODULE_AVAILABLE and hasattr(ssh, "SSHServerService"):
+    ActiveSSHService = ssh.SSHServerService
+    print("[Loader] Successfully linked external 'ssh.py' module.")
+else:
+    ActiveSSHService = FallbackSSHService
+
 class CastToScreen(Service):
     def init(self):
         print("[Service] CastToScreen (DLNA + Wi-Fi Direct) active")
@@ -244,20 +266,22 @@ def main():
     services = ServiceManager()
     apps = AppManager()
 
-    # Инициализация сервисов и Privet TV++
-    privet_tv_service = PrivetTVPlusAssistant(event_bus, hw_profile)
+    # Инициализация сервисов (SSH-сервис импортируется из вашего ssh.py)
+    home_radio_service = HomeRadioAssistant(event_bus, hw_profile)
+    ssh_service = ActiveSSHService(port=2222) 
     cast_service = CastToScreen()
     samba_service = SambaShareService(event_bus)
     iptv_service = IPTVService(event_bus)
 
-    services.register(privet_tv_service)
+    services.register(home_radio_service)
+    services.register(ssh_service)  # Регистрация SSH
     services.register(cast_service)
     services.register(samba_service)
     services.register(iptv_service)
 
     services.init_all()
 
-    # Регистрация наших программ
+    # Регистрация программ
     hello_app = HelloTV()
     store_app = Olistore()
     iptv_app = IPTVApp(event_bus, iptv_service)
@@ -268,9 +292,9 @@ def main():
     apps.register_app("IPTV", iptv_app)
     apps.register_app("TelegramTV", telegram_app)
 
-    # Привязка голосовых команд Privet TV++ к переключению приложений
+    # Привязка голосовых команд к переключению приложений
     def handle_voice_app_launch(app_name):
-        print(f"[Kernel System] Opening app triggered by Privet TV++: {app_name}")
+        print(f"[Kernel System] Opening app triggered by Home Radio Pro: {app_name}")
         apps.open(app_name)
 
     event_bus.on("voice_open_app", handle_voice_app_launch)
@@ -280,8 +304,8 @@ def main():
     apps.open("HelloTV")
     apps.open("OlliStore")
 
-    # Тест голосовой команды через Privet TV++
-    privet_tv_service.listen_command("Privet TV, открой Telegram")
+    # Тест голосовой команды
+    home_radio_service.listen_command("Home Radio, открой Telegram")
     telegram_app.incoming_call("Artem")
 
     # Главный цикл (60 FPS Simulation)
@@ -293,7 +317,7 @@ def main():
             apps.loop()
             time.sleep(0.016)
             tick += 1
-        print("\nOrsay MIX Core with Privet TV++ is running.")
+        print("\nHome Radio Pro Core is running.")
     except KeyboardInterrupt:
         print("Shutdown requested.")
 
