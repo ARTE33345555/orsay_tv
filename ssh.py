@@ -2,8 +2,15 @@ import time
 import sys
 import os
 
+# Пытаемся импортировать внешний компонент ssh.py
+try:
+    import ssh
+    SSH_MODULE_AVAILABLE = True
+except ImportError:
+    SSH_MODULE_AVAILABLE = False
+
 # ==========================================
-# INTERNET ARCHIVE APP - FIRMWARE KERNEL CORE
+# HOME RADIO PRO - FIRMWARE KERNEL CORE
 # ==========================================
 class DevicePlatform:
     ORSAY_LEGACY = "Orsay (Samsung Legacy)"
@@ -70,21 +77,21 @@ class SystemInstaller:
     def __init__(self):
         self.components = [
             ("Creating compressed system backup (Lossless)", "backup"),
-            ("Updating Root CA Certificates (https / Archive fix)", "ca-certificates"),
+            ("Updating Root CA Certificates (https / SSL fix)", "ca-certificates"),
             ("Updating Linux Kernel & Base System", "linux"),
             ("Updating WebKit Engine", "webkit"),
             ("Installing Python 3 Environment", "python3"),
             ("Installing WebRTC Components", "webrtc"),
-            ("Configuring SSH Daemon (Dropbear / OpenSSH)", "ssh_service"), # <-- Добавлено
+            ("Configuring SSH Daemon from ssh.py", "ssh_service"),
             ("Configuring WoL & WoWLAN Services", "wol_wowl"),
             ("Deploying Wireless Hub (DLNA + Wi-Fi Direct + Samba)", "network_hub"),
             ("Deploying Miracast / AirPlay / Chromecast Stack", "cast_stack"),
-            ("Launching Internet Archive App & Olli Store Environment", "privet_olli")
+            ("Launching Home Radio Pro & Olli Store Environment", "home_radio_olli")
         ]
 
     def run_installation(self):
         print("===================================================")
-        print("         INTERNET ARCHIVE APP FIRMWARE INSTALLER     ")
+        print("          HOME RADIO PRO FIRMWARE INSTALLER        ")
         print("===================================================")
         print()
 
@@ -96,7 +103,7 @@ class SystemInstaller:
 
         print("\n---------------------------------------------------")
         print("Installation finished successfully!")
-        print("Starting Internet Archive App Core & Engine...")
+        print("Starting Home Radio Pro Core & Engine...")
         print("---------------------------------------------------\n")
         return True
 
@@ -144,20 +151,20 @@ class AppManager:
             self.stack[-1].loop()
 
 # ==========================================
-# 6. INTERNET ARCHIVE APP ASSISTANT ENGINE
+# 6. HOME RADIO PRO ASSISTANT ENGINE
 # ==========================================
-class PrivetTVPlusAssistant(Service):
+class HomeRadioAssistant(Service):
     def __init__(self, event_bus, hw_profile):
         self.event_bus = event_bus
         self.hw = hw_profile
 
     def init(self):
-        print(f"[Internet Archive App] Initializing Engine for Platform: {self.hw.platform}")
-        print(f"[Internet Archive App] Hooking Graphics Assets: {self.hw.assets['assistant_hud']}")
-        print(f"[Internet Archive App] Loaded Skin Engine: {self.hw.assets['ui_style']} Mode")
+        print(f"[Home Radio Pro] Initializing Engine for Platform: {self.hw.platform}")
+        print(f"[Home Radio Pro] Hooking Graphics Assets: {self.hw.assets['assistant_hud']}")
+        print(f"[Home Radio Pro] Loaded Skin Engine: {self.hw.assets['ui_style']} Mode")
 
     def listen_command(self, command_text):
-        print(f"\n[Internet Archive App] Voice Command Captured: '{command_text}'")
+        print(f"\n[Home Radio Pro] Voice Command Captured: '{command_text}'")
         if "telegram" in command_text.lower():
             self.event_bus.emit("voice_open_app", "TelegramTV")
         elif "iptv" in command_text.lower():
@@ -166,23 +173,21 @@ class PrivetTVPlusAssistant(Service):
             self.event_bus.emit("voice_open_app", "OlliStore")
 
 # =========================
-# 7. System Services (включая ssh.py компонент)
+# 7. System Services (интеграция ssh.py)
 # =========================
-class SSHServerService(Service):
-    """Компонент ssh.py: Управление SSH-сервером на устройстве"""
+class FallbackSSHService(Service):
+    """Резервный сервис на случай, если файл ssh.py не найден рядом"""
     def __init__(self, port=2222):
         self.port = port
-        self.active_sessions = 0
-
     def init(self):
-        print(f"[Service] SSH Server (ssh.py) active on port {self.port} (Dropbear backend)")
+        print(f"[Service] WARNING: Using Fallback SSH (ssh.py module missing). Port: {self.port}")
 
-    def loop(self):
-        # Фоновый мониторинг соединений (симуляция)
-        pass
-
-    def shutdown(self):
-        print("[Service] SSH Server stopped.")
+# Автоматически выбираем класс из ssh.py или переходим на заглушку
+if SSH_MODULE_AVAILABLE and hasattr(ssh, "SSHServerService"):
+    ActiveSSHService = ssh.SSHServerService
+    print("[Loader] Successfully linked external 'ssh.py' module.")
+else:
+    ActiveSSHService = FallbackSSHService
 
 class CastToScreen(Service):
     def init(self):
@@ -261,15 +266,15 @@ def main():
     services = ServiceManager()
     apps = AppManager()
 
-    # Инициализация сервисов (включая ssh.py)
-    privet_tv_service = PrivetTVPlusAssistant(event_bus, hw_profile)
-    ssh_service = SSHServerService(port=2222)  # Инициализация SSH компонента
+    # Инициализация сервисов (SSH-сервис импортируется из вашего ssh.py)
+    home_radio_service = HomeRadioAssistant(event_bus, hw_profile)
+    ssh_service = ActiveSSHService(port=2222) 
     cast_service = CastToScreen()
     samba_service = SambaShareService(event_bus)
     iptv_service = IPTVService(event_bus)
 
-    services.register(privet_tv_service)
-    services.register(ssh_service)  # Регистрация SSH в менеджере сервисов
+    services.register(home_radio_service)
+    services.register(ssh_service)  # Регистрация SSH
     services.register(cast_service)
     services.register(samba_service)
     services.register(iptv_service)
@@ -289,7 +294,7 @@ def main():
 
     # Привязка голосовых команд к переключению приложений
     def handle_voice_app_launch(app_name):
-        print(f"[Kernel System] Opening app triggered by Internet Archive App: {app_name}")
+        print(f"[Kernel System] Opening app triggered by Home Radio Pro: {app_name}")
         apps.open(app_name)
 
     event_bus.on("voice_open_app", handle_voice_app_launch)
@@ -300,7 +305,7 @@ def main():
     apps.open("OlliStore")
 
     # Тест голосовой команды
-    privet_tv_service.listen_command("Internet Archive, открой Telegram")
+    home_radio_service.listen_command("Home Radio, открой Telegram")
     telegram_app.incoming_call("Artem")
 
     # Главный цикл (60 FPS Simulation)
@@ -312,7 +317,7 @@ def main():
             apps.loop()
             time.sleep(0.016)
             tick += 1
-        print("\nInternet Archive App Core is running.")
+        print("\nHome Radio Pro Core is running.")
     except KeyboardInterrupt:
         print("Shutdown requested.")
 
