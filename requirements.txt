@@ -1,0 +1,36 @@
+# Core dependencies
+Flask==2.3.0
+Flask-CORS==4.0.0
+
+# Network & Communications
+requests==2.31.0
+paramiko==3.3.1
+Pillow==10.0.0
+
+# Speech recognition (optional)
+vosk==0.3.21
+sounddevice==0.4.5
+
+# Media handling
+python-magic==0.4.27
+mutagen==1.46.0
+
+# Data processing
+numpy==1.24.3
+pandas==2.0.2
+
+# Async & threading
+asyncio
+aiohttp==3.8.4
+
+# System utilities
+psutil==5.9.5
+py-socks==0.4.2
+
+# Testing
+pytest==7.4.0
+pytest-cov==4.1.0
+
+# Development
+black==23.7.0
+pylint==2.17.5
