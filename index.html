@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orsay TV 2.6 | Universal TV Reviver - Main Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0d1117;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #c9d1d9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
+            border-bottom: 2px solid #30363d;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        .logo {
+            font-size: 2.2em;
+            font-weight: 900;
+            background: linear-gradient(45deg, #58a6ff, #00f2fe, #58a6ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(30, 111, 235, 0.1);
+            border: 1px solid #30363d;
+            border-radius: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #3fb950;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* MAIN CONTENT */
+        .container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 20px;
+            padding: 30px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            background: #161b22;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #30363d;
+            height: fit-content;
+            position: sticky;
+            top: 30px;
+        }
+
+        .menu-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 10px;
+        }
+
+        .menu-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            background: transparent;
+        }
+
+        .menu-item:hover {
+            background: rgba(30, 111, 235, 0.15);
+            border-left-color: #58a6ff;
+        }
+
+        .menu-item.active {
+            background: rgba(30, 111, 235, 0.3);
+            border-left-color: #58a6ff;
+            color: #58a6ff;
+            font-weight: 600;
+        }
+
+        /* MAIN AREA */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* CARD GRID */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            border-color: #58a6ff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(88, 166, 255, 0.1);
+        }
+
+        .card-icon {
+            font-size: 2.5em;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #c9d1d9;
+        }
+
+        .card-desc {
+            font-size: 12px;
+            color: #8b949e;
+            line-height: 1.5;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1f6feb, #114b9a);
+            color: white;
+            border-color: #58a6ff;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2e7ee6, #1a5bc8);
+            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #238636, #1a6328);
+            color: white;
+            border-color: #3fb950;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #2ea043, #1e7e34);
+        }
+
+        .btn-secondary {
+            background: #21262d;
+            color: #8b949e;
+            border-color: #30363d;
+        }
+
+        .btn-secondary:hover {
+            background: #30363d;
+            color: #c9d1d9;
+        }
+
+        /* INFO BOX */
+        .info-box {
+            background: rgba(30, 111, 235, 0.1);
+            border: 1px solid #30363d;
+            border-left: 4px solid #58a6ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-box h3 {
+            color: #58a6ff;
+            margin-bottom: 8px;
+        }
+
+        .info-box p {
+            font-size: 13px;
+            color: #8b949e;
+            line-height: 1.6;
+        }
+
+        /* DEVICE LIST */
+        .device-item {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .device-info {
+            flex: 1;
+        }
+
+        .device-name {
+            font-weight: bold;
+            color: #58a6ff;
+            margin-bottom: 4px;
+        }
+
+        .device-meta {
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .device-status {
+            padding: 6px 12px;
+            background: #238636;
+            color: white;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* STATS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #58a6ff;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* FOOTER */
+        footer {
+            background: #0d1117;
+            border-top: 1px solid #30363d;
+            padding: 20px;
+            text-align: center;
+            font-size: 11px;
+            color: #8b949e;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #c9d1d9;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">⚡ ORSAY TV 2.6</div>
+    <div class="status-bar">
+        <div class="status-item">
+            <div class="status-dot"></div>
+            <span>Wi-Fi Direct: ACTIVE</span>
+        </div>
+        <div class="status-item">
+            <div class="status-dot"></div>
+            <span>WoL/WoWLAN: READY</span>
+        </div>
+        <div class="status-item">
+            <div class="status-dot"></div>
+            <span>AllShare DLNA: RUNNING</span>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="menu-title">NAVIGATION</div>
+        
+        <div class="menu-item active" onclick="switchSection('dashboard')">
+            📊 Dashboard
+        </div>
+        <div class="menu-item" onclick="switchSection('remote-devices')">
+            📱 Remote Devices
+        </div>
+        <div class="menu-item" onclick="switchSection('iptv')">
+            📺 IPTV Channels
+        </div>
+        <div class="menu-item" onclick="switchSection('media')">
+            🎬 Media Library
+        </div>
+        <div class="menu-item" onclick="switchSection('network')">
+            🌐 Network
+        </div>
+        <div class="menu-item" onclick="switchSection('settings')">
+            ⚙️ Settings
+        </div>
+        <div class="menu-item" onclick="switchSection('about')">
+            ℹ️ About
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="section active">
+            <h2 style="margin-bottom: 20px;">🏠 System Dashboard</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-uptime">48h 23m</div>
+                    <div class="stat-label">Uptime</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-ram">156 MB</div>
+                    <div class="stat-label">Memory Used</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-devices">3</div>
+                    <div class="stat-label">Connected Devices</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-services">7</div>
+                    <div class="stat-label">Active Services</div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>✅ System Status</h3>
+                <p>Orsay TV Core v2.6 is running normally. All services are active and functioning as expected. Wi-Fi Direct connection is ready for Orsay Remote TV (Android/iOS).</p>
+            </div>
+
+            <h3 style="margin-bottom: 15px;">🚀 Quick Start</h3>
+            <div class="card-grid">
+                <div class="card" onclick="switchSection('remote-devices')">
+                    <div class="card-icon">📱</div>
+                    <div class="card-title">Connect Remote TV</div>
+                    <div class="card-desc">Connect your Android or iOS device running Orsay Remote TV via Wi-Fi Direct P2P</div>
+                </div>
+                <div class="card" onclick="switchSection('iptv')">
+                    <div class="card-icon">📺</div>
+                    <div class="card-title">Play IPTV</div>
+                    <div class="card-desc">Load and play TV channels from your M3U playlist</div>
+                </div>
+                <div class="card" onclick="switchSection('media')">
+                    <div class="card-icon">🎬</div>
+                    <div class="card-title">Browse Media</div>
+                    <div class="card-desc">Access your AllShare DLNA media library (photos, videos, music)</div>
+                </div>
+                <div class="card" onclick="switchSection('network')">
+                    <div class="card-icon">🌐</div>
+                    <div class="card-title">Network Settings</div>
+                    <div class="card-desc">Configure Wi-Fi, WoL, and network services</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REMOTE DEVICES -->
+        <div id="remote-devices" class="section">
+            <h2 style="margin-bottom: 20px;">📱 Orsay Remote TV Connections</h2>
+            
+            <div class="info-box">
+                <h3>Wi-Fi Direct (P2P) Status</h3>
+                <p>Ready to accept connections from Orsay Remote TV (Android/iOS). Listening on port 5555. Your TV's MAC: <strong>00:11:22:33:44:55</strong></p>
+            </div>
+
+            <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+                <button class="btn btn-success" onclick="startDiscovery()">🔍 Search for Remotes</button>
+                <button class="btn btn-secondary" onclick="showQRCode()">📱 Show Pairing QR</button>
+            </div>
+
+            <h3 style="margin-bottom: 15px;">Connected Devices</h3>
+            <div id="device-list">
+                <div class="device-item">
+                    <div class="device-info">
+                        <div class="device-name">Samsung Galaxy S23 (Android)</div>
+                        <div class="device-meta">192.168.1.45 • MAC: AA:BB:CC:DD:EE:FF • Last seen: 2 min ago</div>
+                    </div>
+                    <div class="device-status">🟢 CONNECTED</div>
+                </div>
+                <div class="device-item">
+                    <div class="device-info">
+                        <div class="device-name">iPhone 14 (iOS)</div>
+                        <div class="device-meta">192.168.1.67 • MAC: 11:22:33:44:55:66 • Last seen: 5 min ago</div>
+                    </div>
+                    <div class="device-status">🟢 CONNECTED</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- IPTV -->
+        <div id="iptv" class="section">
+            <h2 style="margin-bottom: 20px;">📺 IPTV Channels</h2>
+            
+            <div class="info-box">
+                <h3>IPTV Streaming Engine</h3>
+                <p>Supports M3U playlists and XSPF formats. Compatible with H.264, H.265, VP8, VP9 video codecs. Load playlists via URL or USB.</p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <input type="text" id="iptv-url" placeholder="Enter M3U Playlist URL..." 
+                       style="padding: 10px; width: 100%; max-width: 500px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; margin-bottom: 10px;">
+                <button class="btn btn-primary" onclick="loadIPTVPlaylist()">📥 Load Playlist</button>
+            </div>
+
+            <h3 style="margin-bottom: 15px;">Available Channels</h3>
+            <div class="card-grid">
+                <div class="card" onclick="playChannel('Channel 1')">
+                    <div class="card-icon">📡</div>
+                    <div class="card-title">Channel 1</div>
+                    <div class="card-desc">Stream URL: http://stream1.example.com</div>
+                </div>
+                <div class="card" onclick="playChannel('Channel 2')">
+                    <div class="card-icon">📡</div>
+                    <div class="card-title">Channel 2</div>
+                    <div class="card-desc">Stream URL: http://stream2.example.com</div>
+                </div>
+                <div class="card" onclick="playChannel('Channel 3')">
+                    <div class="card-icon">📡</div>
+                    <div class="card-title">Channel 3</div>
+                    <div class="card-desc">Stream URL: http://stream3.example.com</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MEDIA -->
+        <div id="media" class="section">
+            <h2 style="margin-bottom: 20px;">🎬 AllShare DLNA Media Library</h2>
+            
+            <div class="info-box">
+                <h3>Media Server Status</h3>
+                <p>Your TV is now acting as a DLNA/UPnP media server. Other devices on your network can discover and browse your media library.</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="media-videos">42</div>
+                    <div class="stat-label">Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="media-photos">156</div>
+                    <div class="stat-label">Photos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="media-music">284</div>
+                    <div class="stat-label">Songs</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="media-storage">8.4 GB</div>
+                    <div class="stat-label">Used Storage</div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="openMediaBrowser()">📂 Browse Media</button>
+        </div>
+
+        <!-- NETWORK -->
+        <div id="network" class="section">
+            <h2 style="margin-bottom: 20px;">🌐 Network Configuration</h2>
+            
+            <h3 style="margin-bottom: 15px;">Wi-Fi Settings</h3>
+            <div style="background: #0d1117; padding: 20px; border-radius: 8px; border: 1px solid #30363d; margin-bottom: 20px;">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-size: 13px; color: #8b949e;">Connected Network</label>
+                    <input type="text" value="Home WiFi (5GHz)" readonly 
+                           style="width: 100%; padding: 10px; background: #161b22; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-size: 13px; color: #8b949e;">Signal Strength</label>
+                    <div style="display: flex; gap: 5px;">
+                        <span style="color: #3fb950;">▓▓▓▓▓</span> 98%
+                    </div>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-size: 13px; color: #8b949e;">IP Address</label>
+                    <input type="text" value="192.168.1.100" readonly 
+                           style="width: 100%; padding: 10px; background: #161b22; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9;">
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 15px;">Network Services</h3>
+            <div class="device-item">
+                <div class="device-info">
+                    <div class="device-name">Wake-on-LAN (WoL)</div>
+                    <div class="device-meta">Respond to magic packets on port 9</div>
+                </div>
+                <div class="device-status">🟢 ENABLED</div>
+            </div>
+            <div class="device-item">
+                <div class="device-info">
+                    <div class="device-name">Wake-on-Wireless-LAN (WoWLAN)</div>
+                    <div class="device-meta">Wake via wireless signal</div>
+                </div>
+                <div class="device-status">🟢 ENABLED</div>
+            </div>
+            <div class="device-item">
+                <div class="device-info">
+                    <div class="device-name">AllShare DLNA Server</div>
+                    <div class="device-meta">Port 8008 • UPnP Discovery Active</div>
+                </div>
+                <div class="device-status">🟢 RUNNING</div>
+            </div>
+            <div class="device-item">
+                <div class="device-info">
+                    <div class="device-name">Wi-Fi Direct (P2P)</div>
+                    <div class="device-meta">Port 5555 • Orsay Remote TV compatible</div>
+                </div>
+                <div class="device-status">🟢 LISTENING</div>
+            </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div id="settings" class="section">
+            <h2 style="margin-bottom: 20px;">⚙️ System Settings</h2>
+            
+            <h3 style="margin-bottom: 15px;">System Information</h3>
+            <div style="background: #0d1117; padding: 20px; border-radius: 8px; border: 1px solid #30363d; margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 13px;">
+                    <div>
+                        <div style="color: #8b949e; margin-bottom: 3px;">Firmware Version</div>
+                        <div style="color: #c9d1d9; font-weight: bold;">2.6 (Python 3.11.4)</div>
+                    </div>
+                    <div>
+                        <div style="color: #8b949e; margin-bottom: 3px;">Platform</div>
+                        <div style="color: #c9d1d9; font-weight: bold;">Samsung Orsay Legacy</div>
+                    </div>
+                    <div>
+                        <div style="color: #8b949e; margin-bottom: 3px;">CPU Architecture</div>
+                        <div style="color: #c9d1d9; font-weight: bold;">ARM Cortex-A9</div>
+                    </div>
+                    <div>
+                        <div style="color: #8b949e; margin-bottom: 3px;">RAM Available</div>
+                        <div style="color: #c9d1d9; font-weight: bold;">356 MB / 512 MB</div>
+                    </div>
+                    <div>
+                        <div style="color: #8b949e; margin-bottom: 3px;">Build Date</div>
+                        <div style="color: #c9d1d9; font-weight: bold;">2026-10-02</div>
+                    </div>
+                    <div>
+                        <div style="color: #8b949e; margin-bottom: 3px;">License</div>
+                        <div style="color: #c9d1d9; font-weight: bold;">GPL v3.0</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 15px;">Advanced Options</h3>
+            <button class="btn btn-secondary" onclick="rebootSystem()" style="display: block; margin-bottom: 10px;">🔄 Reboot System</button>
+            <button class="btn btn-secondary" onclick="factoryReset()" style="display: block;">⚠️ Factory Reset</button>
+        </div>
+
+        <!-- ABOUT -->
+        <div id="about" class="section">
+            <h2 style="margin-bottom: 20px;">ℹ️ About Orsay TV 2.6</h2>
+            
+            <div style="background: #161b22; border: 1px solid #30363d; padding: 25px; border-radius: 12px; margin-bottom: 20px;">
+                <h3 style="color: #58a6ff; margin-bottom: 15px;">Universal TV Reviver</h3>
+                <p style="color: #8b949e; line-height: 1.8; margin-bottom: 15px;">
+                    Orsay TV is a custom firmware that transforms legacy Samsung Smart TVs (2010-2014) and compatible devices into modern multimedia centers. 
+                    It includes IPTV support, DLNA media sharing, Wi-Fi Direct connectivity, and much more.
+                </p>
+
+                <h4 style="color: #58a6ff; margin-top: 20px; margin-bottom: 10px;">Features:</h4>
+                <ul style="color: #8b949e; padding-left: 20px;">
+                    <li>✅ IPTV Streaming (H.264/H.265 support)</li>
+                    <li>✅ AllShare DLNA Media Server (UPnP compatible)</li>
+                    <li>✅ Wi-Fi Direct (P2P) for Orsay Remote TV</li>
+                    <li>✅ Wake-on-LAN & Wake-on-Wireless-LAN</li>
+                    <li>✅ Voice control via Home Radio Pro</li>
+                    <li>✅ Telegram TV calling support</li>
+                    <li>✅ OTA updates via ARTE_SERVER</li>
+                    <li>✅ Python 3 runtime environment</li>
+                </ul>
+
+                <h4 style="color: #58a6ff; margin-top: 20px; margin-bottom: 10px;">Supported Devices:</h4>
+                <ul style="color: #8b949e; padding-left: 20px;">
+                    <li>Samsung Orsay TVs (2010-2014)</li>
+                    <li>Samsung Tizen 1.0 (Modern)</li>
+                    <li>LG NetCast & WebOS 1.0</li>
+                    <li>Generic embedded Linux systems</li>
+                </ul>
+
+                <h4 style="color: #58a6ff; margin-top: 20px; margin-bottom: 10px;">Developer:</h4>
+                <p style="color: #8b949e;">© 2026 ARTE33345555</p>
+                <p style="color: #8b949e; font-size: 12px;">Licensed under GNU General Public License v3.0</p>
+            </div>
+
+            <div style="text-align: center; padding: 20px; background: #0d1117; border-radius: 8px; border: 1px solid #30363d;">
+                <p style="color: #8b949e; margin-bottom: 15px;">Open Source Project</p>
+                <a href="https://github.com/ARTE33345555/orsay_tv" target="_blank" 
+                   style="color: #58a6ff; text-decoration: none; font-weight: bold;">View on GitHub →</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- MODAL FOR QR CODE -->
+<div id="qrModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-title">📱 Pair Orsay Remote TV</div>
+        <p style="color: #8b949e; margin-bottom: 20px;">Scan this QR code with your Android/iOS device to automatically configure connection to this TV.</p>
+        <div style="text-align: center; background: #0d1117; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <div style="width: 250px; height: 250px; background: white; margin: 0 auto; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #000;">
+                [QR CODE PLACEHOLDER]
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn btn-secondary" onclick="closeQRModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div>Orsay TV 2.6 | Python 3.11.4 Runtime | Wi-Fi Direct P2P Ready</div>
+    <div style="margin-top: 10px; font-size: 10px;">Licensed under GNU General Public License v3.0</div>
+</footer>
+
+<script src="main.js"></script>
+
+</body>
+</html>
